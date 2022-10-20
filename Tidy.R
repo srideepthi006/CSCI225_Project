@@ -30,4 +30,8 @@ data$smoking_status[data$smoking_status == "Unknown"] <- NA
 
 data$work_type[data$work_type == "children" | data$work_type== "Never_worked"] <- "Not Working"
 
+
 filter(data, work_type == "Not Working")
+
+
+#nkdsnkl
