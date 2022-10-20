@@ -30,8 +30,18 @@ data$smoking_status[data$smoking_status == "Unknown"] <- NA
 
 data$work_type[data$work_type == "children" | data$work_type== "Never_worked"] <- "Not Working"
 
+data$bmi[data$gender=="Female" & is.na(data$bmi)] <- mean(data$bmi[data$gender=="Female"], na.rm = TRUE)
 
-filter(data, work_type == "Not Working")
+
+
+
+class(data$bmi)
+
+the_mean <- data  %>% select(bmi,gender)%>% filter(!is.na(bmi)) %>% group_by(gender) %>% summarise(mean(bmi))
+
+the_mean <- data  %>% select(bmi)%>%filter(!is.na(bmi)) 
+
+filter(data, !is.na(bmi)) %>% summarise(mean=mean(bmi))
 
 
 #nkdsnkl
