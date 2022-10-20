@@ -1,9 +1,10 @@
 install.packages("tidyverse")
 install.packages("dplyr")
 install.packages("ggplot")
-
+install.packages("xlsx")
 library(tidyverse)
 library(dplyr)
+library(xlsx)
 
 #import dataset
 data <- read_csv("/Users/qwerty/Desktop/OneDrive - St. Francis Xavier University/4th Year/CSCI225/CSCI 225 Group Project/Stroke Dataset.csv")
@@ -30,18 +31,19 @@ data$smoking_status[data$smoking_status == "Unknown"] <- NA
 
 data$work_type[data$work_type == "children" | data$work_type== "Never_worked"] <- "Not Working"
 
-data$bmi[data$gender=="Female" & is.na(data$bmi)] <- mean(data$bmi[data$gender=="Female"], na.rm = TRUE)
+#changing bmi column from character to numerical
+data$bmi<- as.double(data$bmi)
 
-
-
-
-class(data$bmi)
-
+#calculating mean of bmi grouped by gender
 the_mean <- data  %>% select(bmi,gender)%>% filter(!is.na(bmi)) %>% group_by(gender) %>% summarise(mean(bmi))
 
-the_mean <- data  %>% select(bmi)%>%filter(!is.na(bmi)) 
+#replace N/A is bmi by average of gender
+data$bmi[data$gender == "Female" & is.na(data$bmi)] <-the_mean[1,2]
+data$bmi[data$gender == "Male" & is.na(data$bmi)] <-the_mean[2,2]
 
-filter(data, !is.na(bmi)) %>% summarise(mean=mean(bmi))
+#exporting tidy changes to common csv file
+write_csv(data,"/Users/qwerty/Desktop/RProject - Isaac/CSCI225_Project/Stroke Dataset.csv")
+
 
 
 #nkdsnkl
