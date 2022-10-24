@@ -77,3 +77,6 @@ data$work_type[data$work_type == "Govt_job"] <- "Govt Job"
 
 #exporting tidy changes to common csv file
 write_csv(data,"C:/Users/19028/Documents/Datascience/Health Analytics/CSCI225_Project/NewStrokeDataset.csv")
+
+
+

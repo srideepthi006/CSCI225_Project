@@ -2,21 +2,21 @@ library(ggplot2)
 library(xlsx)
 
 
-newdata <- read_csv("C:/Users/19028/Documents/Datascience/Health Analytics/CSCI225_Project/NewStrokeDataset.csv")
+Data_Mod <- read_csv("C:/Users/19028/Documents/Datascience/Health Analytics/CSCI225_Project/NewStrokeDataset.csv")
 
-ggplot(data = newdata, mapping = aes(x=stroke)) + labs(x="Stroke Data", y="Count") + 
+ggplot(data = Data_Mod, mapping = aes(x=stroke)) + labs(x="Stroke Data", y="Count") + 
   geom_bar(color="white", fill= "darkblue")
 
-NoStrokeData <- subset(newdata, (stroke == "No Stroke"))
+NoStroke_Data <- subset(Data_Mod, (stroke == "No Stroke"))
 
-StrokeData <- subset(newdata, (stroke == "Stroke"))
+Stroke_Data <- subset(Data_Mod, (stroke == "Stroke"))
 
-rand_ns <- NoStrokeData[sample(nrow(NoStrokeData), size=248), ]
+Rand_NoStroke <- NoStroke_Data[sample(nrow(NoStroke_Data), size=nrow(Stroke_Data)), ]
 
-Sampled <- rbind(StrokeData, rand_ns)
+Sample_Data <- rbind(Stroke_Data, Rand_NoStroke)
 
-ggplot(data = Sampled, mapping = aes(x=stroke)) + labs(x="Stroke Data", y="Count") + 
+ggplot(data = Sample_Data, mapping = aes(x=stroke)) + labs(x="Stroke Data", y="Count") + 
   geom_bar(color="white", fill= "darkblue")
 
 #exporting sampled data to common csv file
-write_csv(Sampled,"C:/Users/19028/Documents/Datascience/Health Analytics/CSCI225_Project/NewStroke_Sample_Dataset.csv")
+write_csv(Sample_Data,"C:/Users/19028/Documents/Datascience/Health Analytics/CSCI225_Project/NewStroke_Sample_Dataset.csv")
