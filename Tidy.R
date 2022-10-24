@@ -42,8 +42,8 @@ data$bmi[data$gender == "Female" & is.na(data$bmi)] <-the_mean[1,2]
 data$bmi[data$gender == "Male" & is.na(data$bmi)] <-the_mean[2,2]
 
 #exporting tidy changes to common csv file
-write_csv(data,"/Users/qwerty/Desktop/RProject - Isaac/CSCI225_Project/Stroke Dataset.csv")
+write_csv(data,"/Users/qwerty/Desktop/CSCI225_Project/Stroke Dataset.csv")
 
-
+filter(data)
 
 #nkdsnkl
