@@ -7,9 +7,7 @@ library(dplyr)
 library(xlsx)
 
 #import dataset
-data <- read_csv("/Users/qwerty/Desktop/OneDrive - St. Francis Xavier University/4th Year/CSCI225/CSCI 225 Group Project/Stroke Dataset.csv")
-
-test<-filter(data, work_type=="children")
+data <- read_csv("C:/Users/19028/Documents/Datascience/Health Analytics/CSCI225_Project/Stroke Dataset.csv")
 
 #checking for empty cells => none
 filter(data, gender == "" | age== "" | hypertension== "" | heart_disease== "" | ever_married== "" | work_type== "" |Residence_type == "" | avg_glucose_level== "" |bmi == "" | smoking_status== "" | stroke== "" )
@@ -52,7 +50,7 @@ data <- subset(data, !(bmi > 50))
 # Removing the other data in gender
 data <- subset(data, (gender != "Other"))
 
-# Changing the binary values to strings
+# Changing the (binary) values to appropriate strings
 
 data$stroke[data$stroke == 0] <- "No Stroke"
 
@@ -65,6 +63,17 @@ data$heart_disease[data$heart_disease == 1] <- "Heart Disease"
 data$hypertension[data$hypertension == 0] <- "No Hypertension"
 
 data$hypertension[data$hypertension == 1] <- "Hypertension"
+
+data$smoking_status[data$smoking_status == "formerly smoked"] <- "Formerly Smoked"
+
+data$smoking_status[data$smoking_status == "never smoked"] <- "Never Smoked"
+
+data$smoking_status[data$smoking_status == "smokes"] <- "Smokes"
+
+data$work_type[data$work_type == "Self-employed"] <- "Self Employed"
+
+data$work_type[data$work_type == "Govt_job"] <- "Govt Job"
+
 
 #exporting tidy changes to common csv file
 write_csv(data,"C:/Users/19028/Documents/Datascience/Health Analytics/CSCI225_Project/NewStrokeDataset.csv")
