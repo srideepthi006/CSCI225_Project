@@ -52,6 +52,8 @@ data <- subset(data, !(bmi > 50))
 # Removing the other data in gender
 data <- subset(data, (gender != "Other"))
 
+# Changing the binary values to strings
+
 data$stroke[data$stroke == 0] <- "No Stroke"
 
 data$stroke[data$stroke == 1] <- "Stroke"
@@ -60,6 +62,9 @@ data$heart_disease[data$heart_disease == 0] <- "No Heart Disease"
 
 data$heart_disease[data$heart_disease == 1] <- "Heart Disease"
 
+data$hypertension[data$hypertension == 0] <- "No Hypertension"
+
+data$hypertension[data$hypertension == 1] <- "Hypertension"
 
 #exporting tidy changes to common csv file
 write_csv(data,"C:/Users/19028/Documents/Datascience/Health Analytics/CSCI225_Project/NewStrokeDataset.csv")
