@@ -1,8 +1,10 @@
 library(ggplot2)
 library(xlsx)
+library(tidyverse)
 
 
-newdata <- read_csv("C:/Users/19028/Documents/Datascience/Health Analytics/CSCI225_Project/NewStrokeDataset.csv")
+
+newdata <- read_csv("NewStrokeDataset.csv")
 
 ggplot(data = newdata, mapping = aes(x=stroke)) + labs(x="Stroke Data", y="Count") + 
   geom_bar(color="white", fill= "darkblue")
