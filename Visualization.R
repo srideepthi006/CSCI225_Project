@@ -1,3 +1,5 @@
+install.packages('FSinR')
+library(FSinR)
 library(ggplot2)
 library(readr)
 library(tidyverse)
@@ -13,7 +15,7 @@ ggplot(data = Sample_Data, mapping = aes(x=ever_married))
 #Does body mass index and glucose levels in a person, propel a stroke?
 #As many people say, various preventative steps such as switching to a healthy lifestyle by having a heart healthy diet, aiming for healthy weight, proper stress management, quitting smoking will help us to reduce the risk of having a stroke. Is this statement correct?
   
-
+SelectKBest(NewStrokeDataset, 'stroke', roughsetConsistency, 1)
 
 ggplot(data = Sampled, mapping = aes(x=ever_married, fill=stroke)) + geom_bar()
 
@@ -41,10 +43,11 @@ ggplot(data = newdata, mapping = aes(x=smoking_status,fill=stroke))+geom_bar(pos
 ggplot(data = StrokeData, mapping = aes(x=age, y=bmi))+geom_point(aes(color=work_type))
 
 
+#geom point age vs bmi showing which individuals have hypertension/no hypertension and stroke/no stroke
 ggplot(data = StrokeData, mapping = aes(x=age, y=bmi))+geom_point(aes(color=hypertension, shape=stroke))
 
 
-
+ggplot(data = newdata, mapping = aes(x=stroke, fill = hypertension))+geom_bar(position = "fill")
 
 
   
