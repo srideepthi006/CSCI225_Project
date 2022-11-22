@@ -1,5 +1,5 @@
 library(ggplot2)
-
+library(readr)
 library(tidyverse)
 
 
@@ -39,5 +39,13 @@ ggplot(data = newdata, mapping = aes(x=smoking_status,fill=stroke))+geom_bar(pos
 
 #facet of geom point -> age vs bmi showing stroke or not
 ggplot(data = StrokeData, mapping = aes(x=age, y=bmi))+geom_point(aes(color=work_type))
+
+
+ggplot(data = StrokeData, mapping = aes(x=age, y=bmi))+geom_point(aes(color=hypertension, shape=stroke))
+
+
+
+
+
   
 

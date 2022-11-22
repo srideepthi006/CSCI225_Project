@@ -65,7 +65,7 @@ data$stroke[data$stroke == 1] <- "Stroke"
 data$heart_disease[data$heart_disease == 0] <- "No Heart Disease"
 
 data$heart_disease[data$heart_disease == 1] <- "Heart Disease"
->>>>>>> 5a1c662aa14724959dee87859e4da01aceed0760
+#>>>>>>> 5a1c662aa14724959dee87859e4da01aceed0760
 
 data$hypertension[data$hypertension == 0] <- "No Hypertension"
 
