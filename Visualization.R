@@ -111,6 +111,7 @@ ggplot(data = NewStrokeDataset, mapping = aes(x = age, y = ..density..)) +
 
 #-->for individuals hove have blood glucose levl below 150 and stroke==yes, what are their ages(descriptive)
 strokeAndlessThan150<-filter(NewStrokeDataset, avg_glucose_level<150 & stroke=="Stroke")
+
 #--> plot of age distribution of of ppl with normal glucose and have a stroke(descriptive)
 ggplot(data=strokeAndlessThan150,mapping = aes(x=age, fill=stroke))+
   geom_histogram(binwidth = 5)+ggtitle("Age distribution of people having strokes with glocose levels<150")
@@ -125,6 +126,10 @@ strokeAndlessThan150 %>%
   count(stroke, work_type) %>%  
   ggplot(mapping = aes(x = stroke, y = work_type)) +
   geom_tile(mapping = aes(fill = n)) +ggtitle("Stroke Status vs Work Type & normal glucose lvls")
+
+
+#bmi-glucose lvl correlation
+ggplot(data = StrokeData, mapping = aes(x=avg_glucose_level, y=bmi))+geom_bin2d()
 
 
 
