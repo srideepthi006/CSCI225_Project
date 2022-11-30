@@ -151,11 +151,9 @@ data_copy <- data
 sapply(stroke_data, class)
 
 stroke_data$stroke <- as.factor(stroke_data$stroke)
-stroke_data$age <- as.factor(stroke_data$age)
 stroke_data$hypertension <- as.factor(stroke_data$hypertension)
 stroke_data$heart_disease <- as.factor(stroke_data$heart_disease)
-stroke_data$avg_glucose_level <- as.factor(stroke_data$avg_glucose_level)
-stroke_data$bmi <- as.factor(stroke_data$bmi)
+
 
 #BMI_Category
 #Underweight	< 18.5	    ----  0
@@ -164,33 +162,36 @@ stroke_data$bmi <- as.factor(stroke_data$bmi)
 #Obese class I	30.0 - 34.9		    ----  3
 #Obese class II	35.0 - 39.9		    ----  4
 #Obese class III	>= 40.0		    ----  5
-stroke_data$BMI_Category <- as.factor(stroke_data$BMI_Category)
-data$BMI_Category[data$BMI_Category == 5] <- 'Obese Class III'
-data$BMI_Category[data$BMI_Category == 4] <- 'Obese Class II'
-data$BMI_Category[data$BMI_Category == 3] <- 'Obese Class I'
-data$BMI_Category[data$BMI_Category == 2] <- 'Overweight'
-data$BMI_Category[data$BMI_Category == 1] <- 'Normal Weigh'
-data$BMI_Category[data$BMI_Category == 0] <- 'Underweight'
 stroke_data$BMI_Category <- as.character(stroke_data$BMI_Category)
+stroke_data$BMI_Category[stroke_data$BMI_Category == 5] <- 'Obese Class III'
+stroke_data$BMI_Category[stroke_data$BMI_Category == 4] <- 'Obese Class II'
+stroke_data$BMI_Category[stroke_data$BMI_Category == 3] <- 'Obese Class I'
+stroke_data$BMI_Category[stroke_data$BMI_Category == 2] <- 'Overweight'
+stroke_data$BMI_Category[stroke_data$BMI_Category == 1] <- 'Normalweight'
+stroke_data$BMI_Category[stroke_data$BMI_Category == 0] <- 'Underweight'
 
-data %>% count(data$BMI_Category)
+data %>% count(stroke_data$BMI_Category)
+
 
 #Glucose_Category
 #Diabetes	126 mg/dL or above  --  2
 #Prediabetes	100 – 125 mg/dL	  --  1
 #Normal	99 mg/dL or below	  --  0
 
-stroke_data$Glucose_Category <- as.factor(stroke_data$Glucose_Category)
-data$Glucose_Category[data$Glucose_Category == 2] <- 'Diabetes'
-data$Glucose_Category[data$Glucose_Category == 1] <- 'Prediabetes'
-data$Glucose_Category[data$Glucose_Category == 0] <- 'Normal'
 stroke_data$Glucose_Category <- as.character(stroke_data$Glucose_Category)
+stroke_data$Glucose_Category[stroke_data$Glucose_Category == 2] <- 'Diabetes'
+stroke_data$Glucose_Category[stroke_data$Glucose_Category == 1] <- 'Prediabetes'
+stroke_data$Glucose_Category[stroke_data$Glucose_Category == 0] <- 'Normal'
 
-data %>% count(data$Glucose_Category)
+
+data %>% count(stroke_data$Glucose_Category)
 
 sapply(stroke_data, class)
 
 NoStrokeData <- subset(stroke_data, (stroke == 0))
 
 StrokeData <- subset(stroke_data, (stroke == 1))
+
+stroke_cor = round(cor(subset(data_copy, select = -c(age, avg_glucose_level, bmi))),2)
+ggplot(data = reshape2::melt(stroke_cor),aes(x=Var1, y=Var2, fill=value)) + geom_tile() +  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0, limit = c(-1,1), space = "Lab", name="Correlation") + geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) + theme(axis.text.x = element_text(angle = 90))
 
