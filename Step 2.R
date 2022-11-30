@@ -3,7 +3,7 @@ install.packages("imbalance")
 
 library(caret)
 library(imbalance)
-
+library(randomForest)
 
 
 data = subset(data, select = -c(Age_Category, Glucose_Category, BMI_Category))
@@ -35,6 +35,11 @@ training_control <- trainControl(method = "cv", number = 5)
 RF_Model <- train(stroke ~ ., data = training_data, method = "rf", trControl = training_control)
 RF_Model
 
+model <- randomForest(stroke ~ ., data = training_data, ntree = 500, mtry = 4, importance = TRUE )
+pred_train <- predict(model)
+result_train <- confusionMatrix(pred_train, training_data$stroke)
+(result_train$overall)['Accuracy']
+
 test_data$prediction <- predict(RF_Model, newdata = test_data)
 
 mysample <- data.frame(gender = c(0,1), 
@@ -46,10 +51,7 @@ mysample <- data.frame(gender = c(0,1),
                        Residence_type = c(0,0), 
                        avg_glucose_level = c(228.69,94.39), 
                        bmi = c(36.6,22.8), 
-                       smoking_status = c(1,0), 
-                       Age_Category = c(2,2), 
-                       BMI_Category = c(4,1), 
-                       Glucose_Category = c(2,0))
+                       smoking_status = c(1,0))
 mysample$predic <- predict(RF_Model, newdata = mysample)
 mysample$predic
 
