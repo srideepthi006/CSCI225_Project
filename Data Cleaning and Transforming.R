@@ -9,7 +9,7 @@ library(xlsx)
 
 
 #import data set
-data <- read_csv("C:/Users/19028/Documents/Datascience/Health Analytics/CSCI225_Project/Stroke Dataset.csv")
+data <- read_csv("/Users/qwerty/Desktop/OneDrive - St. Francis Xavier University/4th Year/CSCI225/CSCI 225 Group Project/Stroke Dataset.csv")
 
 str(data)
 summary(data)
@@ -195,3 +195,4 @@ StrokeData <- subset(stroke_data, (stroke == 1))
 stroke_cor = round(cor(subset(data_copy, select = -c(age, avg_glucose_level, bmi))),2)
 ggplot(data = reshape2::melt(stroke_cor),aes(x=Var1, y=Var2, fill=value)) + geom_tile() +  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0, limit = c(-1,1), space = "Lab", name="Correlation") + geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) + theme(axis.text.x = element_text(angle = 90))
 
+write.csv(data,"/Users/qwerty/Desktop/CSCI225_Project/data_numeric.csv", row.names = FALSE)
