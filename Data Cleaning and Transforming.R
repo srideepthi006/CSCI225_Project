@@ -195,3 +195,31 @@ StrokeData <- subset(stroke_data, (stroke == 1))
 stroke_cor = round(cor(subset(data_copy, select = -c(age, avg_glucose_level, bmi))),2)
 ggplot(data = reshape2::melt(stroke_cor),aes(x=Var1, y=Var2, fill=value)) + geom_tile() +  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0, limit = c(-1,1), space = "Lab", name="Correlation") + geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) + theme(axis.text.x = element_text(angle = 90))
 
+
+stroke_data$stroke <- as.character(stroke_data$stroke)
+stroke_data$heart_disease <- as.character(stroke_data$heart_disease)
+stroke_data$hypertension <- as.character(stroke_data$hypertension)
+stroke_data$smoking_status <- as.character(stroke_data$smoking_status)
+stroke_data$work_type <- as.character(stroke_data$work_type)
+
+stroke_data$stroke[stroke_data$stroke == 0] <- "No Stroke"
+
+stroke_data$stroke[stroke_data$stroke == 1] <- "Stroke"
+
+stroke_data$heart_disease[stroke_data$heart_disease == 0] <- "No Heart Disease"
+
+stroke_data$heart_disease[stroke_data$heart_disease == 1] <- "Heart Disease"
+
+stroke_data$hypertension[stroke_data$hypertension == 0] <- "No Hypertension"
+
+stroke_data$hypertension[stroke_data$hypertension == 1] <- "Hypertension"
+
+stroke_data$smoking_status[stroke_data$smoking_status == "formerly smoked"] <- "Formerly Smoked"
+
+stroke_data$smoking_status[stroke_data$smoking_status == "never smoked"] <- "Never Smoked"
+
+stroke_data$smoking_status[stroke_data$smoking_status == "smokes"] <- "Smokes"
+
+stroke_data$work_type[stroke_data$work_type == "Self-employed"] <- "Self Employed"
+
+stroke_data$work_type[stroke_data$work_type == "Govt_job"] <- "Govt Job"
