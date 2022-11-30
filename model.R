@@ -2,7 +2,7 @@
 
 
 # Importing libraries
-library(RCurl) # for downloading the iris CSV file
+library(RCurl) # for downloading CSV file
 library(randomForest)
 library(caret)
 library(ROSE)
@@ -12,6 +12,7 @@ setwd("/Users/karankaushal/Oracle Content - Accounts/Oracle Content/Documents Ka
 clean_data <- read.csv("NewStrokeDataset.csv")
 
 clean_data <- subset(clean_data, select = -c(id,Residence_type,Age_Category,work_type))
+
 
 set.seed(666)
 
@@ -38,6 +39,8 @@ write.csv(TrainingSet, "training.csv")
 write.csv(TestingSet, "testing.csv")
 
 TrainSet <- read.csv("training.csv", header = TRUE)
+
+TrainSet <- TrainSet[,-1]
 
 
 TrainSet[,"stroke"] <- as.factor(TrainSet[,"stroke"])
