@@ -26,6 +26,11 @@ ggplot(data = Sampled, mapping = aes(x=heart_disease, fill=stroke)) + geom_bar()
 ggplot(data=StrokeData, mapping= aes(x=age, fill=stroke)) +
   geom_histogram(binwidth = 5, color="black")
 
+#histogram showing distribution of age corresponding to stroke or not
+ggplot(filter(NewStrokeDataset, stroke=="Stroke"), mapping= aes(x=age, fill=stroke)) +
+  geom_histogram(binwidth = 5,color="black")+
+  labs(title = "Age Distribution of Recorded Stroke Cases - Left Skewed")
+
 #boxplot of 
 ggplot(data=StrokeData, mapping = aes(x=gender, y=age, group=gender))+ 
   geom_boxplot(aes(fill=gender))
@@ -40,7 +45,7 @@ ggplot(data = newdata, mapping = aes(x=smoking_status,fill=stroke))+geom_bar(pos
 
 
 #facet of geom point -> age vs bmi showing stroke or not
-ggplot(data = StrokeData, mapping = aes(x=age, y=bmi))+geom_point(aes(color=work_type))
+ggplot(data = filter(NewStrokeDataset, stroke=="Stroke"), mapping = aes(x=age, y=bmi))+geom_point(aes(color=work_type))
 
 
 #geom point age vs bmi showing which individuals have hypertension/no hypertension and stroke/no stroke
@@ -66,7 +71,10 @@ Sampled %>%
 Sampled %>% 
   count(stroke, Age_Category) %>%  
   ggplot(mapping = aes(x = stroke, y = Age_Category)) +
-  geom_tile(mapping = aes(fill = n))
+  geom_tile(mapping = aes(fill = n))+
+  xlab("Stroke Status")+
+  ylab("Age Category")+
+  labs(title= "Strokes are Alot More Common Amongst Seniors")
 
 
 #covar btwn smoking status & stroke
@@ -75,11 +83,14 @@ Sampled %>%
   ggplot(mapping = aes(x = stroke, y = smoking_status)) +
   geom_tile(mapping = aes(fill = n))
 
-#covar btwn worktype & stroke
+#covar btwn worktype & stroke(Descriptive)
 Sampled %>% 
   count(stroke, work_type) %>%  
   ggplot(mapping = aes(x = stroke, y = work_type)) +
   geom_tile(mapping = aes(fill = n))
+
+ggplot(data = filter(Sampled, age>19), mapping = aes(x = bmi,y=..density..)) + 
+  geom_freqpoly(mapping = aes(colour = work_type), binwidth = 2)
 
 
 #covar btwn martial status & stroke
@@ -100,14 +111,21 @@ ggplot(data = NewStrokeDataset) +
 #glucose level vs stroke(descriptive)
 ggplot(data = NewStrokeDataset, mapping = aes(x = avg_glucose_level, y = ..density..)) + 
   geom_freqpoly(mapping = aes(colour = stroke), binwidth = 10)
+#Glucose lvl vs stroke with Zoom (descriptive)
+ggplot(data = NewStrokeDataset, mapping = aes(x = avg_glucose_level, y = ..density..)) + 
+  geom_freqpoly(mapping = aes(colour = stroke), binwidth = 10)+
+  coord_cartesian(xlim = c(30, 160), )+xlab("Average Glucose Level")
 
 #bmi vs stroke(descriptive)
 ggplot(data = Sampled, mapping = aes(x = bmi, y = ..density..)) + 
-  geom_freqpoly(mapping = aes(colour = stroke), binwidth = 3)
+  geom_freqpoly(mapping = aes(colour = stroke), binwidth = 1)+
+  labs(title = "Many Stroke Cases are Occuring to Overweight People")
+
 
 #age vs stroke
 ggplot(data = NewStrokeDataset, mapping = aes(x = age, y = ..density..)) + 
-  geom_freqpoly(mapping = aes(colour = stroke), binwidth = 5)
+  geom_freqpoly(mapping = aes(colour = stroke), binwidth = 5)+
+  labs(title="Large Frequency of Strokes Amongst Seniors")
 
 #-->for individuals hove have blood glucose levl below 150 and stroke==yes, what are their ages(descriptive)
 strokeAndlessThan150<-filter(NewStrokeDataset, avg_glucose_level<150 & stroke=="Stroke")
