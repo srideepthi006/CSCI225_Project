@@ -3,6 +3,7 @@ library(FSinR)
 library(ggplot2)
 library(readr)
 library(tidyverse)
+install.packages("shiny")
 
 
 #How the marital status of the person impacts the chances of Stroke?
