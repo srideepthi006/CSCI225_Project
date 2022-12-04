@@ -4,18 +4,19 @@ library(tidyverse)
 
 
 
-newdata <- read_csv("NewStrokeDataset.csv")
+newdata <- stroke_data
 
 ggplot(data = newdata, mapping = aes(x=stroke)) + labs(x="Stroke Data", y="Count") + 
   geom_bar(color="white", fill= "darkblue")
 
-NoStrokeData <- subset(newdata, (stroke == "No Stroke"))
+NoStrokeData <- subset(newdata, (stroke == 0))
 
-StrokeData <- subset(newdata, (stroke == "Stroke"))
+StrokeData <- subset(newdata, (stroke == 1))
 
 rand_ns <- NoStrokeData[sample(nrow(NoStrokeData), size=248), ]
 
 Sampled <- rbind(StrokeData, rand_ns)
+
 
 ggplot(data = Sampled, mapping = aes(x=stroke)) + labs(x="Stroke Data", y="Count") + 
   geom_bar(color="white", fill= "darkblue")
