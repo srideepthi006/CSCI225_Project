@@ -1,0 +1,28 @@
+---
+title: "A Deeper Dive into Causes of Brain Strokes and Prediction Model"
+subtitle: "St. Francis Xavier University 					CSCI225: Coding in Health Analytics"
+author: "Sri Ramya Deepthi Bulusu | Karan Kaushal | Isaac Ombotimbe"
+date: "`r Sys.Date()`"
+output:
+  slidy_presentation: default
+  ioslides_presentation: default
+---
+
+Abstract:
+
+A Stroke is a medical emergency that occurs when there is limitation or a complete cut off blood flow to the brain. It deprives a person's brain of oxygen and nutrients, which can cause brain cells to die. There are many factors which result in the stroke such as Age, High BMI, Hypertension, Smoking, Medical Record of Heart Diseases etc. As per the contemporary stroke statistics the range of stroke incidence is in between 41/100,000/year and 297/100,000/year in different countries.
+In this project, we intend to use the data science model approach with the use of the Stroke Prediction Dataset consisting of more than 5000 observations created by Federico Soriano Palacios and retrieved from Kaggle. Using the various attributes within this dataset which relate to brain stroke causes, several types of visualisations will be compiled for the purpose of developing a model which helps predict which groups of patients are more likely to experience a stroke. Some factors which will be used include the patient’s age, BMI, hypertension status, smoking background, medical record of heart diseases, etc. By putting efforts into developing a model which could identify the risk indicators resulting in brain stroke, there are chances of reducing the sufferings by making necessary efforts to treat the symptoms in advance. 
+
+Some of the questions that we want to answer are:
+
+- How the marital status of the person impacts the chances of Stroke?
+-	Will Smoking lead to high probability of having Stroke?
+-	Which gender of people are mostly prone to strokes?
+-	Does the worktype have an impact on bmi and hypertension of the person? Do these influence the chances of having a stroke?
+-	Does age has impact on strokes?
+-	Does body mass index and glucose levels in a person, propel a stroke?
+-	As many people say, various preventative steps such as switching to a healthy lifestyle by having a heart healthy diet, aiming for healthy weight, proper stress management, quitting smoking will help us to reduce the risk of having a stroke. Is this statement correct?
+
+References:
+Dataset Source:
+https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset?resource=download
