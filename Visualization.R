@@ -3,16 +3,14 @@ library(FSinR)
 library(ggplot2)
 library(readr)
 library(tidyverse)
-install.packages("shiny")
 
 
 #How the marital status of the person impacts the chances of Stroke?
-ggplot(data = Sample_Data, mapping = aes(x=ever_married))
+ggplot(data = Sampled, mapping = aes(x=ever_married))
 
 #Will Smoking lead to high probability of having Stroke?
-#Which gender of people are mostly prone to strokes?
+
 #Does the work type have an impact on bmi and hypertension of the person? Do these influence the chances of having a stroke?
-#Does age has impact on strokes?
 #Does body mass index and glucose levels in a person, propel a stroke?
 #As many people say, various preventative steps such as switching to a healthy lifestyle by having a heart healthy diet, aiming for healthy weight, proper stress management, quitting smoking will help us to reduce the risk of having a stroke. Is this statement correct?
   
@@ -23,50 +21,14 @@ ggplot(data = Sampled, mapping = aes(x=ever_married, fill=stroke)) + geom_bar()
 ggplot(data = Sampled, mapping = aes(x=heart_disease, fill=stroke)) + geom_bar()
 
 
-#histogram showing distribution of age corresponding to stroke or not
-ggplot(data=StrokeData, mapping= aes(x=age, fill=stroke)) +
-  geom_histogram(binwidth = 5, color="black")
+#---------------------------------------------------------------------------------------
+#Does age have an impact on the abundance of strokes?
+
 
 #histogram showing distribution of age corresponding to stroke or not
-ggplot(filter(NewStrokeDataset, stroke=="Stroke"), mapping= aes(x=age, fill=stroke)) +
+ggplot(filter(stroke_data, stroke=="Stroke"), mapping= aes(x=age, fill=stroke)) +
   geom_histogram(binwidth = 5,color="black")+
   labs(title = "Age Distribution of Recorded Stroke Cases - Left Skewed")
-
-#boxplot of 
-ggplot(data=StrokeData, mapping = aes(x=gender, y=age, group=gender))+ 
-  geom_boxplot(aes(fill=gender))
-
-
-#facet of geom point -> age vs bmi showing stroke or not
-ggplot(data = newdata, mapping = aes(x=age, y=bmi))+geom_point(aes(color=stroke))+
-  facet_grid(~stroke)
-
-#facet of geom point -> glucose lvl vs bmi showing stroke or not
-ggplot(data = newdata, mapping = aes(x=smoking_status,fill=stroke))+geom_bar(position = "fill")
-
-
-#facet of geom point -> age vs bmi showing stroke or not
-ggplot(data = filter(NewStrokeDataset, stroke=="Stroke"), mapping = aes(x=age, y=bmi))+geom_point(aes(color=work_type))
-
-
-#geom point age vs bmi showing which individuals have hypertension/no hypertension and stroke/no stroke
-ggplot(data = StrokeData, mapping = aes(x=age, y=bmi))+geom_point(aes(color=hypertension, shape=stroke))
-
-
-ggplot(data = newdata, mapping = aes(x=stroke, fill = hypertension))+geom_bar(position = "fill")
-
-
-#covariation btwn hypertension and stoke
-Sampled %>% 
-  count(stroke, hypertension) %>%  
-  ggplot(mapping = aes(x = stroke, y = hypertension)) +
-  geom_tile(mapping = aes(fill = n))
-
-#covariation btwn heart_disease & stroke
-Sampled %>% 
-  count(stroke, heart_disease) %>%  
-  ggplot(mapping = aes(x = stroke, y = heart_disease)) +
-  geom_tile(mapping = aes(fill = n))
 
 #covariation btwn stroke status and age category (descriptive)
 Sampled %>% 
@@ -77,6 +39,42 @@ Sampled %>%
   ylab("Age Category")+
   labs(title= "Strokes are Alot More Common Amongst Seniors")
 
+#---------------------------------------------------------------------------------------
+#Which gender of people are mostly prone to strokes?
+
+
+#boxplot to show stroke distribution amongst males and females
+ggplot(data=StrokeData, mapping = aes(x=gender, y=age, group=gender))+ 
+  geom_boxplot(aes(fill=gender))
+#Bar chart to show count of strokes by gender in the samples data
+ggplot(StrokeData,mapping =aes(x=gender))+
+  geom_bar()
+
+
+#---------------------------------------------------------------------------------------
+#Exploratory data analysis Below to answer further questions
+
+#---------------------------------------------------------------------------------------
+#Does the work type have an impact on bmi and hypertension of the person? Do these influence the chances of having a stroke?
+  
+#Relationship between work type and bmi (no relationship)
+ggplot(data = Sampled, mapping = aes(x = bmi,y=..density..)) + 
+  geom_freqpoly(mapping = aes(colour = work_type), binwidth = 2)+
+  labs(title = "No interesting Pattern Between Work Type and BMI")
+
+#Relationship between work type and hypertension (no relationship)
+Sampled %>% 
+  count(work_type, hypertension) %>%  
+  ggplot(mapping = aes(x = work_type, y = hypertension)) +
+  geom_tile(mapping = aes(fill = n))
+#covariation btwn hypertension and stoke
+Sampled %>% 
+  count(stroke, hypertension) %>%  
+  ggplot(mapping = aes(x = stroke, y = hypertension)) +
+  geom_tile(mapping = aes(fill = n))
+
+#---------------------------------------------------------------------------------------
+#Will Smoking lead to high probability of having Stroke?
 
 #covar btwn smoking status & stroke
 Sampled %>% 
@@ -84,14 +82,26 @@ Sampled %>%
   ggplot(mapping = aes(x = stroke, y = smoking_status)) +
   geom_tile(mapping = aes(fill = n))
 
+
+
+
+
+
+#covariation btwn heart_disease & stroke
+Sampled %>% 
+  count(stroke, heart_disease) %>%  
+  ggplot(mapping = aes(x = stroke, y = heart_disease)) +
+  geom_tile(mapping = aes(fill = n))
+
+
+
+
+
 #covar btwn worktype & stroke(Descriptive)
 Sampled %>% 
   count(stroke, work_type) %>%  
   ggplot(mapping = aes(x = stroke, y = work_type)) +
   geom_tile(mapping = aes(fill = n))
-
-ggplot(data = filter(Sampled, age>19), mapping = aes(x = bmi,y=..density..)) + 
-  geom_freqpoly(mapping = aes(colour = work_type), binwidth = 2)
 
 
 #covar btwn martial status & stroke
@@ -149,6 +159,37 @@ strokeAndlessThan150 %>%
 
 #bmi-glucose lvl correlation
 ggplot(data = StrokeData, mapping = aes(x=avg_glucose_level, y=bmi))+geom_bin2d()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#facet of geom point -> age vs bmi showing stroke or not
+ggplot(data = stroke_data, mapping = aes(x=age, y=bmi))+geom_point(aes(color=stroke))+
+  facet_grid(~stroke)
+
+#facet of geom point -> glucose lvl vs bmi showing stroke or not
+ggplot(data = Sampled, mapping = aes(x=smoking_status,fill=stroke))+geom_bar(position = "fill")
+
+
+#facet of geom point -> age vs bmi showing stroke or not
+ggplot(data = filter(Sampled, stroke=="1"), mapping = aes(x=age, y=bmi))+geom_point(aes(color=work_type))
+
+
+#geom point age vs bmi showing which individuals have hypertension/no hypertension and stroke/no stroke
+ggplot(data = StrokeData, mapping = aes(x=age, y=bmi))+geom_point(aes(color=hypertension, shape=stroke))
+
+
+ggplot(data = newdata, mapping = aes(x=stroke, fill = hypertension))+geom_bar(position = "fill")
 
 
 
