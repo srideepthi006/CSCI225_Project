@@ -66,12 +66,24 @@ ggplot(StrokeData,mapping =aes(x=gender,fill=gender))+
 #---------------------------------------------------------------------------------------
 #Does the work type have an impact on bmi and hypertension of the person? Do these influence the chances of having a stroke?
   
-#Relationship between work type and bmi (no relationship)
-ggplot(data = Sampled, mapping = aes(x = bmi,y=..density..)) + 
-  geom_freqpoly(mapping = aes(colour = work_type), binwidth = 2)+
-  labs(title = "No interesting Pattern Between Work Type and BMI")
+#Relationship between work type and bmi (relationship)
+ggplot(data = StrokeData, mapping = aes(x = bmi)) + 
+  geom_freqpoly(mapping = aes(colour = work_type), binwidth = 1)+
+  labs(title = "Private Workers Have a Higher BMI on Average")+
+  xlab("Body Mass Index")
+Sampled %>% 
+  count(stroke, BMI_Category) %>%  
+  ggplot(mapping = aes(x = stroke, y = BMI_Category)) +
+  geom_tile(mapping = aes(fill = n))+xlab("Stroke Status")+ylab("BMI Category")+
+  labs(title = "Stroke Status vs BMI Category",
+       subtitle="Big abundance of stroke cases amonst overweight individuals")
+
+
+filter(Sampled, work_type=="Never_worked")
 
 #Relationship between work type and hypertension (no relationship)
+ggplot(data = Sampled) +
+  geom_count(mapping = aes(x = hypertension, y = work_type))
 Sampled %>% 
   count(work_type, hypertension) %>%  
   ggplot(mapping = aes(x = work_type, y = hypertension)) +
@@ -150,11 +162,13 @@ Sampled %>%
 
 #glucose level vs stroke(descriptive)
 ggplot(data = stroke_data, mapping = aes(x = avg_glucose_level, y = ..density..)) + 
-  geom_freqpoly(mapping = aes(colour = stroke), binwidth = 10)
+  geom_freqpoly(mapping = aes(colour = stroke), binwidth = 10)+xlab("Glucose Level")+
+  labs(title = "Glucose Level vs Stroke Occurance")
 #Glucose lvl vs stroke with Zoom (descriptive)
 ggplot(data = stroke_data, mapping = aes(x = avg_glucose_level, y = ..density..)) + 
   geom_freqpoly(mapping = aes(colour = stroke), binwidth = 10)+
-  coord_cartesian(xlim = c(30, 160), )+xlab("Average Glucose Level")
+  coord_cartesian(xlim = c(30, 160), )+xlab("Glucose Level")+
+  labs(title = "Glucose Level vs Stroke Occurance Zoom")
 
 #covariation btwn heart_disease & stroke
 Sampled %>% 

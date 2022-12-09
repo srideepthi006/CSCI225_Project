@@ -263,12 +263,13 @@ data$Age_Category <- with(data, ifelse(age >= 60, 'Senior',
 
 
 #creating new column for BMI_Category
-#Underweight	< 18.5	    ----  0
+
+#Underweight	< 18.5	           ----  0
 #Normal Weight	18.5 - 24.9		    ----  1
-#Overweight	25.0 - 29.9		    ----  2
-#Obese class I	30.0 - 34.9		    ----  3
-#Obese class II	35.0 - 39.9		    ----  4
-#Obese class III	>= 40.0		    ----  5
+#Overweight	25.0 - 29.9		           ----  2
+#Obese class I	30.0 - 34.9		       ----  3
+#Obese class II	35.0 - 39.9		     ----  4
+#Obese class III	>= 40.0		       ----  5
 
 data$BMI_Category <- with(data, ifelse(bmi >= 40, 5,
                                        ifelse(bmi > 35.0, 4,
