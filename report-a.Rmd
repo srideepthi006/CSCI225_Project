@@ -1,0 +1,459 @@
+
+---
+title: "A Deeper Dive into Causes of Brain Strokes and Prediction Model"
+author: "Sri Ramya Deepthi Bulusu, Isaac Ombotimbe and Karan Kaushal"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(xlsx)
+```
+
+```{r, include=FALSE}
+#import data set
+data <- read_csv("/Users/qwerty/Desktop/OneDrive - St. Francis Xavier University/4th Year/CSCI225/CSCI 225 Group Project/Stroke Dataset.csv")
+
+str(data)
+summary(data)
+head(data)
+tail(data)
+
+data %>% count(data$gender)
+data %>% count(data$hypertension)
+data %>% count(data$heart_disease)
+data %>% count(data$ever_married)
+data %>% count(data$work_type)
+data %>% count(data$Residence_type)
+data %>% count(data$smoking_status)
+data %>% count(data$stroke)
+
+#checking for empty and na cells
+filter(data, gender == "" | age== "" | hypertension== "" | heart_disease== "" | ever_married== "" | work_type== "" |Residence_type == "" | avg_glucose_level== "" |bmi == "" | smoking_status== "" | stroke== "" | is.na(data$gender) == "TRUE" | is.na(data$age) == "TRUE" | 
+         is.na(data$hypertension) == "TRUE" | is.na(data$heart_disease) == "TRUE" | 
+         is.na(data$ever_married) == "TRUE" | is.na(data$work_type) == "TRUE" | 
+         is.na(data$Residence_type ) == "TRUE" | is.na(data$avg_glucose_level) == "TRUE" | 
+         is.na(data$bmi ) == "TRUE" | is.na(data$smoking_status) == "TRUE" | 
+         is.na(data$stroke) == "TRUE" )
+
+#Changing "N/A" and "Unknown" to NA object
+data$bmi[data$bmi == "N/A"] <- NA
+
+data$smoking_status[data$smoking_status == "Unknown"] <- NA
+
+data$work_type[data$work_type == "children"] <- NA
+
+#changing bmi column from character to numerical
+data$bmi<- as.double(data$bmi)
+
+#calculating mean of bmi grouped by gender
+the_mean <- data  %>% select(bmi,gender)%>% filter(!is.na(bmi)) %>% group_by(gender) %>% summarise(mean(bmi))
+
+#replace N/A with bmi by average of gender
+data$bmi[data$gender == "Female" & is.na(data$bmi)] <- the_mean[1,2]
+data$bmi[data$gender == "Male" & is.na(data$bmi)] <- the_mean[2,2]
+
+#changing bmi column to numerical
+data$bmi<- as.double(data$bmi)
+
+#replace the unknown values of smoking_status with the most frequent category ‘never smoked’
+data <- data %>% mutate(smoking_status = replace(smoking_status, is.na(smoking_status), "never smoked"))
+
+#creating new column for Age Category of each observation -> age<=16 = children, age>16 = adult,  age>=60 = senior
+
+data$Age_Category <- with(data, ifelse(age >= 60, 'Senior',
+                                       ifelse(age > 16, 'Adult', 'Child')))
+
+
+#creating new column for BMI_Category
+#Underweight	< 18.5	    ----  0
+#Normal Weight	18.5 - 24.9		    ----  1
+#Overweight	25.0 - 29.9		    ----  2
+#Obese class I	30.0 - 34.9		    ----  3
+#Obese class II	35.0 - 39.9		    ----  4
+#Obese class III	>= 40.0		    ----  5
+
+data$BMI_Category <- with(data, ifelse(bmi >= 40, 5,
+                                       ifelse(bmi > 35.0, 4,
+                                              ifelse(bmi > 30.0, 3, 
+                                                     ifelse(bmi > 25.0, 2, 
+                                                            ifelse(bmi > 18.5, 1, 0))))))
+
+data %>% count(data$BMI_Category)
+
+#creating new column for Glucose_Category
+#Diabetes	126 mg/dL or above  --  2
+#Prediabetes	100 – 125 mg/dL	  --  1
+#Normal	99 mg/dL or below	  --  0
+
+data$Glucose_Category <- with(data, ifelse(avg_glucose_level >= 126.0, 2, 
+                                           ifelse(avg_glucose_level >= 100, 1, 0)))
+
+summary(data)
+sapply(data, class)
+
+#Dealing with Outliers of bmi
+data <- subset(data, !(bmi < 12 & Age_Category != "Child"))
+
+data <- subset(data, !(bmi > 50))
+
+# Removing the other data in gender
+data <- subset(data, (gender != "Other"))
+
+# Drop ID column.
+data= subset(data, select = -c(id))
+summary(data)
+sapply(data, class)
+
+stroke_data <- data
+
+# gender: Male for 0, Female for 1
+data$gender[data$gender == "Male"] <- 0
+data$gender[data$gender == "Female"] <- 1
+data$gender <- as.double(data$gender)
+
+# ever_married: No for 0, Yes for 1
+data$ever_married <- as.character(data$ever_married)
+data$ever_married[data$ever_married == "Yes"] <- 1
+data$ever_married[data$ever_married == "No"] <- 0
+data$ever_married <- as.double(data$ever_married)
+
+#work_type govtjob - 4, never worked - 3, private - 2, self employed - 1, na - 0
+data$work_type[data$work_type == "Govt_job"] <- 4
+data$work_type[data$work_type == "Never_worked"] <- 3
+data$work_type[data$work_type == "Private"] <- 2
+data$work_type[data$work_type == "Self-employed"] <- 1
+data <- data %>% mutate(work_type = replace(work_type, is.na(work_type), 0))
+data$work_type<- as.double(data$work_type)
+
+# Residence_type: Urban for 0, Rural for 1
+data$Residence_type<- as.character(data$Residence_type)
+data$Residence_type[data$Residence_type == "Urban"] <- 0
+data$Residence_type[data$Residence_type == "Rural"] <- 1
+data$Residence_type<- as.double(data$Residence_type)
+
+#smoking status never smoked  - 0, formerly smoked - 1, smokes - 2
+data$smoking_status[data$smoking_status == "formerly smoked"] <- 1
+data$smoking_status[data$smoking_status == "never smoked"] <- 0
+data$smoking_status[data$smoking_status == "smokes"] <- 2
+data$smoking_status<- as.double(data$smoking_status)
+
+# Age_category Senior - 2, Adult - 1, Child - 0
+data$Age_Category[data$Age_Category == "Senior"] <- 2
+data$Age_Category[data$Age_Category == "Adult"] <- 1
+data$Age_Category[data$Age_Category == "Child"] <- 0
+data$Age_Category<- as.double(data$Age_Category)
+
+# Checking for null values
+colSums(is.na(data))
+
+sapply(data, class)
+
+data_copy <- data
+
+sapply(stroke_data, class)
+
+stroke_data$stroke <- as.factor(stroke_data$stroke)
+stroke_data$hypertension <- as.factor(stroke_data$hypertension)
+stroke_data$heart_disease <- as.factor(stroke_data$heart_disease)
+
+
+#BMI_Category
+#Underweight	< 18.5	    ----  0
+#Normal Weight	18.5 - 24.9		    ----  1
+#Overweight	25.0 - 29.9		    ----  2
+#Obese class I	30.0 - 34.9		    ----  3
+#Obese class II	35.0 - 39.9		    ----  4
+#Obese class III	>= 40.0		    ----  5
+stroke_data$BMI_Category <- as.character(stroke_data$BMI_Category)
+stroke_data$BMI_Category[stroke_data$BMI_Category == 5] <- 'Obese Class III'
+stroke_data$BMI_Category[stroke_data$BMI_Category == 4] <- 'Obese Class II'
+stroke_data$BMI_Category[stroke_data$BMI_Category == 3] <- 'Obese Class I'
+stroke_data$BMI_Category[stroke_data$BMI_Category == 2] <- 'Overweight'
+stroke_data$BMI_Category[stroke_data$BMI_Category == 1] <- 'Normalweight'
+stroke_data$BMI_Category[stroke_data$BMI_Category == 0] <- 'Underweight'
+
+data %>% count(stroke_data$BMI_Category)
+
+
+#Glucose_Category
+#Diabetes	126 mg/dL or above  --  2
+#Prediabetes	100 – 125 mg/dL	  --  1
+#Normal	99 mg/dL or below	  --  0
+
+stroke_data$Glucose_Category <- as.character(stroke_data$Glucose_Category)
+stroke_data$Glucose_Category[stroke_data$Glucose_Category == 2] <- 'Diabetes'
+stroke_data$Glucose_Category[stroke_data$Glucose_Category == 1] <- 'Prediabetes'
+stroke_data$Glucose_Category[stroke_data$Glucose_Category == 0] <- 'Normal'
+
+
+data %>% count(stroke_data$Glucose_Category)
+
+sapply(stroke_data, class)
+
+NoStrokeData <- subset(stroke_data, (stroke == 0))
+
+StrokeData <- subset(stroke_data, (stroke == 1))
+
+stroke_cor = round(cor(subset(data_copy, select = -c(age, avg_glucose_level, bmi))),2)
+ggplot(data = reshape2::melt(stroke_cor),aes(x=Var1, y=Var2, fill=value)) + geom_tile() +  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0, limit = c(-1,1), space = "Lab", name="Correlation") + geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) + theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r, include=FALSE}
+newdata <- stroke_data
+
+ggplot(data = newdata, mapping = aes(x=stroke)) + labs(x="Stroke Data", y="Count") + 
+  geom_bar(color="white", fill= "darkblue")
+
+NoStrokeData <- subset(newdata, (stroke == 0))
+
+StrokeData <- subset(newdata, (stroke == 1))
+
+rand_ns <- NoStrokeData[sample(nrow(NoStrokeData), size=248), ]
+
+Sampled <- rbind(StrokeData, rand_ns)
+
+
+ggplot(data = Sampled, mapping = aes(x=stroke)) + labs(x="Stroke Data", y="Count") + 
+  geom_bar(color="white", fill= "darkblue")
+
+```
+
+
+
+## Abstract
+
+A Stroke is a medical emergency that occurs when there is limitation or a complete cut off blood flow to the brain. It deprives a person's brain of oxygen and nutrients, which can cause brain cells to die. There are many factors which result in the stroke such as Age, High BMI, Hypertension, Smoking, Medical Record of Heart Diseases etc. As per the contemporary stroke statistics the range of stroke incidence is in between 41/100,000/year and 297/100,000/year in different countries. In this project, we intend to use the data science model approach with the use of the Stroke Prediction Dataset consisting of more than 5000 observations created by Federico Soriano Palacios and retrieved from Kaggle. Using the various attributes within this dataset which relate to brain stroke causes, several types of visualisations will be compiled for the purpose of developing a model which helps predict which groups of patients are more likely to experience a stroke. Some factors which will be used include the patient’s age, BMI, hypertension status, smoking background, medical record of heart diseases, etc. By putting efforts into developing a model which could identify the risk indicators resulting in brain stroke, there are chances of reducing the sufferings by making necessary efforts to treat the symptoms in advance. 
+
+
+## Introduction
+
+In 2020, 1 in 6 deaths from cardiovascular disease was due to stroke. About 87% of all strokes are ischemic strokes, in which blood flow to the brain is blocked. Stroke-related costs in the United States came to nearly $53 billion between 2017 and 2018. This total includes the cost of health care services, medicines to treat stroke, and missed days of work. Knowing more about prevention and symptoms of stroke could save lives, including yours. By tidying, transforming and visualizing the dataset we are trying to answer some of our questions:
+•	How the marital status of the person impacts the chances of Stroke?
+•	Will Smoking lead to high probability of having Stroke?
+•	Which gender of people are mostly prone to strokes?
+•	Does the worktype have an impact on bmi and hypertension of the person? Do these influence the chances of having a stroke?
+•	Does age has impact on strokes?
+•	Does body mass index and glucose levels in a person, propel a stroke?
+•	As many people say, various preventative steps such as switching to a healthy lifestyle by having a heart healthy diet, aiming for healthy weight, proper stress management, quitting smoking will help us to reduce the risk of having a stroke. Is this statement correct?
+
+## Dataset
+
+**Source**: Stroke Prediction Dataset Originally created by Federico Soriano Palacios from Kaggle
+Dataset Description: 5110 observations with 12 variables
+**Key Variables**: Gender, Age, Hypertension, Heart Disease, Ever Married, Work Type, Residence Type, Avg Glucose Level, BMI, Smoking Status, Stroke, Age Category
+
+
+## Description
+
+The dataset consists of 5110 observations with following 12 variables. 
+
+1.	Gender 
+2.	Age
+3.	Hypertension
+4.	heart_disease
+5.	ever_married
+6.	Work_type
+7.	Residence_type
+8.	Avg_glucose_level
+9.	Bmi
+10.	Smoking_status
+11.	Stroke
+12.	Age_category – We sub-divided the age in three categories (Children, Adult, Senior). 
+
+Recent research says that there are multiple factors which impacts the chances of someone experiencing a brain stroke, which are amongst the above accounted variables. Some of these factors have high probability impact on occurrence of a stoke for an individual. 
+
+
+## Analysis/Research
+
+Our goal here is to build a predictive model to predict whether a person has a high risk of a stroke. Modifiable risk factors - Try to determine the factors which increase the chances of have a stroke in an individual, 
+
+
+# Results
+
+## Age and Its Relation to Strokes
+```{r haha, fig.num ,echo=FALSE}
+#histogram showing distribution of age corresponding to stroke or not
+ggplot(filter(stroke_data, stroke==1), mapping= aes(x=age, fill=stroke)) +
+  geom_histogram(binwidth = 5,color="black")+
+  labs(title = "Age Distribution of Recorded Stroke Cases - Left Skewed")
+
+```
+
+The figure above shows a histogram of the age distribution among people experiencing strokes from our data set. With the use of this visualization, we can see an abundance of stroke cases that start to rise at around the age of 40. The further right we move along the x-axis of the histogram, the see even more cases. It is at the age of around 80 years old that we see the most cases. From these observations we can conclude that the older an individual, the higher the risk of a getting a stroke. This can be linked to natural causes. 
+From this plot as well, we can account for a few outliers. Because it is medically known that health conditions could be the result of a stroke we account these outliers as individuals born with health conditions such as prematurity as an example.
+
+
+```{r, echo=FALSE}
+#covariation btwn stroke status and age category (descriptive)
+Sampled %>% 
+  count(stroke, Age_Category) %>%  
+  ggplot(mapping = aes(x = stroke, y = Age_Category)) +
+  geom_tile(mapping = aes(fill = n))+
+  xlab("Stroke Status")+
+  ylab("Age Category")+
+  labs(title= "Strokes are Alot More Common Amongst Seniors")
+```
+
+
+The figure above shows a heatmao and is used as another way in which we can visualize this distribution. In this heatmap, we see the distribution as from an age group perspective rather than specific ages. We conclude that seniors are most vulnerable to strokes.
+
+
+## Gender and its Relations to Strokes
+
+
+```{r, echo=FALSE}
+#Bar chart to show count of strokes by gender in the samples data
+ggplot(StrokeData,mapping =aes(x=gender,fill=gender))+
+  geom_bar()+labs(title="Count of Males and Females Experiencing Strokes",
+                  subtitle = "Females typically have a higher chance to experience strokes")
+```
+
+
+The figure above is a bar chart that shows the count of individuals experiencing strokes from our sampled data; however, grouped by gender. As it can be seen, we account for more women experiencing strokes. This could be explained because the average life span of men is greater then men.
+
+```{r, echo=FALSE}
+
+#boxplot to show stroke distribution amongst males and females
+ggplot(data=StrokeData, mapping = aes(x=gender, y=age, group=gender))+ 
+  geom_boxplot(aes(fill=gender))+
+  labs(title= "Age Distribution Amongst Males And Females that Experience Strokes",
+       subtitle="Greater Distribution Amongst Females")
+```
+
+
+Further, we displayed a displayed of the age distribution of individuals experiencing stroke grouped by gender using a boxplot in figure 4. From this output and after further analysis, we noticed that women have a greater distribution in terms of age. The reasoning behind this is that women have unique risk factors such as having high blood pressure during pregnancy which causes younger mothers to be exposed to strokes. As a result, in increases the interquartile range on the boxplot representing womens' stroke-age distribution.
+
+## Glucose Levels vs Stroke Status
+
+
+```{r,echo=FALSE}
+ggplot(data = stroke_data, mapping = aes(x = avg_glucose_level, y = ..density..)) + 
+  geom_freqpoly(mapping = aes(colour = stroke), binwidth = 10)+xlab("Glucose Level")+
+  labs(title = "Glucose Level vs Stroke Occurance")
+```
+
+
+The plot above shows density graph of individuals experiencing stroke with the independent variable being the individuals. From this plot we can see two major observations:
+
+- A big spike where glucose levels are considered normal
+
+- Another spike where glucose levels are considered diabetic
+As a result, we can confirm that having a high (unhealthy) glucose level can have an impact on the probabilities on experiencing a stroke
+
+```{r, echo=FALSE}
+#Glucose lvl vs stroke with Zoom (descriptive)
+ggplot(data = stroke_data, mapping = aes(x = avg_glucose_level, y = ..density..)) + 
+  geom_freqpoly(mapping = aes(colour = stroke), binwidth = 10)+
+  coord_cartesian(xlim = c(30, 160), )+xlab("Glucose Level")+
+  labs(title = "Glucose Level vs Stroke Occurance Zoom")
+
+```
+
+If we focus on the individuals who are experiencing stroke at normal levels of glucose (in figure 6), we can ask ourselves further questions giving us an opportunity to do further research and answer those questions
+
+- How come people are getting strokes while having normal glucose levels
+
+- We want to further analyze this observation
+
+
+## What is Causing Strokes Amongst Individuals with Healthy Glucose Levels
+
+
+We filter the individuals that experiencing strokes while having glucose level less or equal to 150 (normal levels) using the following dpyr function and conduct further analysis.
+
+```{r, include=TRUE}
+#-->for individuals hove have blood glucose levl below 150 and stroke==yes
+strokeAndlessThan150<-filter(stroke_data, avg_glucose_level<150 & stroke==1)
+```
+
+```{r, echo=FALSE}
+#--> plot of age distribution of of ppl with normal glucose and have a stroke(descriptive)
+ggplot(data=strokeAndlessThan150,mapping = aes(x=age, fill=stroke))+
+  geom_histogram(binwidth = 5, color="black")+ggtitle("Age distribution of people having strokes with glocose levels<150")
+```
+
+The age distribution amongst people having normal (healthy) glucose levels while experiencing stroke is plotted again using a histogram. We can conclude that age itself is a big factor in an individual experiencing a stroke or not.
+
+```{r, echo=FALSE}
+strokeAndlessThan150 %>% 
+  count(stroke, work_type) %>%  
+  ggplot(mapping = aes(x = stroke, y = work_type)) +
+  geom_tile(mapping = aes(fill = n)) +ggtitle("Stroke Status vs Work Type & Normal Glucose levels")+ylab("Work Type")
+```
+
+From the heatmap in figure 8, we can see that amongst people having normal (healthy) glucose levels and still experiencing strokes, a majority of them work in the private sector.
+
+
+```{r, echo=FALSE}
+
+#covar btwn martial status & stroke
+filter(Sampled, age>30) %>% 
+  count(hypertension, ever_married) %>%  
+  ggplot(mapping = aes(x = hypertension, y = ever_married)) +
+  geom_tile(mapping = aes(fill = n))
+```
+
+Finally, amongst people having normal (healthy) glucose levels and still experiencing strokes, a majority of them are married. Marriage could impact stress levels of some individuals, which could essentially lead to them living unhealthy lifestyles which could result in strokes.
+
+
+
+## Work Type and BMI Relationship
+
+```{r, echo=FALSE}
+#Relationship between work type and bmi (relationship)
+ggplot(data = StrokeData, mapping = aes(x = bmi)) + 
+  geom_freqpoly(mapping = aes(colour = work_type), binwidth = 1)+
+  labs(title = "Private Workers Have a Higher BMI on Average")+
+  xlab("Body Mass Index")
+```
+
+
+```{r, echo=FALSE}
+Sampled %>% 
+  count(stroke, BMI_Category) %>%  
+  ggplot(mapping = aes(x = stroke, y = BMI_Category)) +
+  geom_tile(mapping = aes(fill = n))+xlab("Stroke Status")+ylab("BMI Category")+
+  labs(title = "Stroke Status vs BMI Category",
+       subtitle="Big abundance of stroke cases amonst overweight individuals")
+```
+
+
+
+We can see that on average, private workers seem to have a higher BMI than other workers. There is a spike of private workers at around BMI of 29 which is considered "high" for the average human being. After categorizing  BMI levels, it is concluded that strokes are most common amongst overweight individuals.
+
+
+## Smoking & its Impact on Strokes
+
+
+```{r, echo=FALSE}
+#covar btwn smoking status & stroke (formerly smoked)
+Sampled %>% 
+  count(stroke, smoking_status) %>%  
+  ggplot(mapping = aes(x = stroke, y = smoking_status)) +
+  geom_tile(mapping = aes(fill = n))+
+  ylab("Smoking Status")+
+  xlab("Stroke Status")+
+  labs(title="Nothing Too Significant")
+```
+
+
+Based on out dataset, we cannot say that smoking increases chances of experiencing a stroke since there are frequent stroke cases amongst individual who don’t smoke
+
+
+## Our Model Choice
+
+
+- Random Forest - 92.63
+- Logistic Regression - 86.28
+- K Nearest Neighbors - 86.99
+
+##Our Shiny Web Application
+
+<https://datamechanics.shinyapps.io/brainstrokepredictor>
+
+
